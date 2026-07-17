@@ -1,0 +1,39 @@
+<section class="max-w-xl">
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Effectuer un virement</h1>
+
+  <form [formGroup]="form" (ngSubmit)="soumettre()" class="card p-6 space-y-5">
+    <div>
+      <label for="source" class="label">Compte à débiter</label>
+      <select id="source" formControlName="compteSource" class="input">
+        <option value="" disabled>Sélectionner un compte…</option>
+        @for (compte of comptes(); track compte.id) {
+          <option [value]="compte.numeroCompte">
+            {{ compte.type }} — {{ compte.numeroCompte }} ({{ compte.soldeDisponible | number: '1.0-2' }} {{ compte.devise }})
+          </option>
+        }
+      </select>
+      @if (comptes().length === 0) {
+        <p class="field-error">Aucun compte actif disponible.</p>
+      }
+    </div>
+
+    <div>
+      <label for="destination" class="label">Compte destinataire (RIB)</label>
+      <input id="destination" type="text" formControlName="compteDestination" class="input font-mono" placeholder="SN…" />
+    </div>
+
+    <div>
+      <label for="montant" class="label">Montant</label>
+      <input id="montant" type="number" min="1" formControlName="montant" class="input" placeholder="0" />
+    </div>
+
+    <div>
+      <label for="motif" class="label">Motif (optionnel)</label>
+      <input id="motif" type="text" formControlName="motif" class="input" placeholder="Loyer, remboursement…" />
+    </div>
+
+    <button type="submit" [disabled]="enCours()" class="btn btn-primary w-full">
+      @if (enCours()) { <app-spinner [size]="18" /> Envoi… } @else { Valider le virement }
+    </button>
+  </form>
+</section>

@@ -1,0 +1,46 @@
+<section>
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Opérations à valider</h1>
+
+  @if (page(); as p) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Référence</th>
+              <th>De → Vers</th>
+              <th class="text-right">Montant</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of p.content; track t.id) {
+              <tr>
+                <td class="text-slate-600 whitespace-nowrap">{{ t.dateOperation | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="font-mono text-xs text-slate-600">{{ t.reference }}</td>
+                <td class="font-mono text-xs text-slate-600">{{ t.compte }} → {{ t.compteDestination }}</td>
+                <td class="text-right font-semibold whitespace-nowrap">{{ t.montant | number: '1.0-2' }}</td>
+                <td>
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" (click)="traiter(t, 'APPROUVER')" [disabled]="traitement() === t.id" class="btn btn-success btn-sm">Approuver</button>
+                    <button type="button" (click)="traiter(t, 'REJETER')" [disabled]="traitement() === t.id" class="btn btn-danger btn-sm">Rejeter</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="text-center text-slate-400 py-10">Aucune opération en attente. 🎉</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-50 text-sm">
+        <span class="text-slate-500">{{ p.page.totalElements }} en attente</span>
+        <div class="flex gap-2">
+          <button type="button" (click)="precedent()" [disabled]="indexPage() === 0" class="btn btn-outline btn-sm">Précédent</button>
+          <button type="button" (click)="suivant()" [disabled]="indexPage() >= p.page.totalPages - 1" class="btn btn-outline btn-sm">Suivant</button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

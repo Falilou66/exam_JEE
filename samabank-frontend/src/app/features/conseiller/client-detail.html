@@ -1,0 +1,71 @@
+<section>
+  <a routerLink="/conseiller/clients" class="text-sm text-slate-500 hover:text-brand-700 transition">← Clients</a>
+
+  @if (client(); as c) {
+    <h1 class="text-2xl font-bold text-slate-800 mt-1">{{ c.prenom }} {{ c.nom }}</h1>
+    <div class="card p-6 mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 text-sm">
+      <p><span class="text-slate-500">N° client :</span> <span class="font-mono">{{ c.numeroClient }}</span></p>
+      <p><span class="text-slate-500">CNI :</span> {{ c.cni }}</p>
+      <p><span class="text-slate-500">Email :</span> {{ c.email }}</p>
+      <p><span class="text-slate-500">Téléphone :</span> {{ c.telephone || '—' }}</p>
+      <p class="sm:col-span-2"><span class="text-slate-500">Adresse :</span> {{ c.adresse || '—' }}</p>
+    </div>
+  }
+
+  <!-- Ouvrir un compte -->
+  <div class="card p-6 mt-6">
+    <h2 class="font-semibold text-slate-800 mb-4">Ouvrir un compte</h2>
+    <form [formGroup]="form" (ngSubmit)="ouvrir()" class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="label">Type</label>
+        <select formControlName="type" class="input">
+          <option value="COURANT">Courant</option>
+          <option value="EPARGNE">Épargne</option>
+        </select>
+      </div>
+      @if (form.controls.type.value === 'COURANT') {
+        <div>
+          <label class="label">Découvert autorisé</label>
+          <input type="number" min="0" formControlName="decouvertAutorise" class="input" />
+        </div>
+      } @else {
+        <div>
+          <label class="label">Taux d'intérêt</label>
+          <input type="number" min="0" step="0.01" formControlName="tauxInteret" class="input" />
+        </div>
+      }
+      <button type="submit" class="btn btn-primary">Ouvrir</button>
+    </form>
+  </div>
+
+  <!-- Comptes -->
+  <h2 class="font-semibold text-slate-800 mt-8 mb-3">Comptes</h2>
+  <div class="grid gap-4 sm:grid-cols-2 stagger">
+    @for (compte of comptes(); track compte.id) {
+      <article class="card p-5">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">{{ compte.type }}</p>
+            <p class="font-mono text-xs text-slate-500 mt-0.5">{{ compte.numeroCompte }}</p>
+          </div>
+          <span [class]="badgeStatut(compte.statut)">{{ compte.statut }}</span>
+        </div>
+        <p class="text-xl font-bold text-slate-800 mt-3">{{ compte.solde | number: '1.0-2' }} {{ compte.devise }}</p>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          @if (compte.statut === 'ACTIF') {
+            <button type="button" (click)="changer(compte, 'BLOQUE')" class="btn btn-outline btn-sm !text-red-700 !border-red-200 hover:!bg-red-50">Bloquer</button>
+          }
+          @if (compte.statut === 'BLOQUE') {
+            <button type="button" (click)="changer(compte, 'ACTIF')" class="btn btn-outline btn-sm !text-brand-700 !border-brand-200 hover:!bg-brand-50">Débloquer</button>
+          }
+          @if (compte.statut !== 'CLOTURE' && compte.solde === 0) {
+            <button type="button" (click)="changer(compte, 'CLOTURE')" class="btn btn-outline btn-sm">Clôturer</button>
+          }
+        </div>
+      </article>
+    } @empty {
+      <p class="text-slate-500 text-sm">Aucun compte.</p>
+    }
+  </div>
+</section>

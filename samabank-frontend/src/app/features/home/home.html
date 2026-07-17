@@ -1,0 +1,159 @@
+<section>
+  <h1 class="text-2xl font-bold text-slate-800">Bonjour 👋</h1>
+  <p class="text-slate-500 mt-1">Ravi de vous revoir, <span class="font-medium text-slate-700">{{ email() }}</span></p>
+
+  <!-- ===== CLIENT ===== -->
+  @if (estClient()) {
+    <div class="mt-8 grid gap-4 lg:grid-cols-3 stagger">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink-900 via-ink-800 to-brand-800 text-white p-6 lg:col-span-2 shadow-lg shadow-brand-900/20">
+        <div class="relative z-10">
+          <p class="text-sm text-slate-300">Solde total</p>
+          <p class="mt-2 text-4xl font-extrabold tracking-tight">
+            <app-count-up [value]="soldeTotal()" [fractionDigits]="0" />
+            <span class="text-lg font-semibold text-brand-300 ml-1">{{ devise() }}</span>
+          </p>
+          <div class="mt-4 flex gap-3">
+            <a routerLink="/mes-comptes" class="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2 text-sm font-medium transition">
+              <app-icon name="wallet" [size]="18" /> Mes comptes
+            </a>
+            <a routerLink="/virements" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-500 px-4 py-2 text-sm font-medium transition">
+              <app-icon name="transfer" [size]="18" /> Virement
+            </a>
+          </div>
+        </div>
+        <svg class="absolute bottom-0 left-0 right-0 text-white/5" viewBox="0 0 400 120" preserveAspectRatio="none" fill="currentColor" aria-hidden="true">
+          <path d="M0 60 C 80 20, 160 100, 240 60 S 400 20, 400 60 V120 H0 Z" />
+        </svg>
+        <app-icon name="bank" [size]="120" class="absolute -right-4 -top-4 text-white/5" />
+      </div>
+
+      <div class="card p-6 flex flex-col justify-center">
+        <p class="text-sm text-slate-500">Comptes actifs</p>
+        <p class="mt-2 text-4xl font-extrabold text-slate-800"><app-count-up [value]="comptes().length" /></p>
+        <p class="text-sm text-slate-400 mt-1">répartis ci-dessous</p>
+      </div>
+    </div>
+
+    @if (comptes().length) {
+      <div class="card p-6 mt-4">
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Répartition</h2>
+        <div class="space-y-4">
+          @for (compte of comptes(); track compte.id) {
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="font-medium text-slate-700">{{ compte.type }} · <span class="font-mono text-xs text-slate-400">{{ compte.numeroCompte }}</span></span>
+                <span class="font-semibold text-slate-800">{{ compte.solde | number: '1.0-0' }} {{ compte.devise }}</span>
+              </div>
+              <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600 transition-all duration-700" [style.width.%]="pourcentage(compte)"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ===== CONSEILLER ===== -->
+  @if (estConseiller()) {
+    <div class="mt-8 grid gap-4 lg:grid-cols-3 stagger">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink-900 via-ink-800 to-brand-800 text-white p-6 shadow-lg shadow-brand-900/20">
+        <div class="relative z-10">
+          <p class="text-sm text-slate-300">Espace conseiller</p>
+          <p class="mt-2 text-2xl font-bold">Gérez vos clients</p>
+          <a routerLink="/conseiller/clients" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-500 px-4 py-2 text-sm font-medium transition">
+            <app-icon name="plus" [size]="18" /> Nouveau client
+          </a>
+        </div>
+        <app-icon name="users" [size]="120" class="absolute -right-4 -top-4 text-white/5" />
+      </div>
+
+      <a routerLink="/conseiller/clients" class="card p-6 flex items-center justify-between transition hover:shadow-md hover:-translate-y-0.5">
+        <div>
+          <p class="text-sm text-slate-500">Clients</p>
+          <p class="mt-2 text-4xl font-extrabold text-slate-800"><app-count-up [value]="nbClients()" /></p>
+        </div>
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="users" [size]="24" /></span>
+      </a>
+
+      <a routerLink="/conseiller/validations" class="card p-6 flex items-center justify-between transition hover:shadow-md hover:-translate-y-0.5" [class.ring-2]="nbEnAttente() > 0" [class.ring-amber-300]="nbEnAttente() > 0">
+        <div>
+          <p class="text-sm text-slate-500">En attente</p>
+          <p class="mt-2 text-4xl font-extrabold" [class]="nbEnAttente() > 0 ? 'text-amber-600' : 'text-slate-800'"><app-count-up [value]="nbEnAttente()" /></p>
+        </div>
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-amber-100 text-amber-700"><app-icon name="check" [size]="24" /></span>
+      </a>
+    </div>
+  }
+
+  <!-- ===== ADMIN ===== -->
+  @if (estAdmin()) {
+    <div class="mt-8 grid gap-4 lg:grid-cols-3 stagger">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink-900 via-ink-800 to-brand-800 text-white p-6 shadow-lg shadow-brand-900/20">
+        <div class="relative z-10">
+          <p class="text-sm text-slate-300">Administration</p>
+          <p class="mt-2 text-2xl font-bold">Supervision & sécurité</p>
+          <a routerLink="/admin/utilisateurs" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-500 px-4 py-2 text-sm font-medium transition">
+            <app-icon name="plus" [size]="18" /> Nouvel utilisateur
+          </a>
+        </div>
+        <app-icon name="shield" [size]="120" class="absolute -right-4 -top-4 text-white/5" />
+      </div>
+
+      <a routerLink="/admin/audit" class="card p-6 flex items-center justify-between transition hover:shadow-md hover:-translate-y-0.5">
+        <div>
+          <p class="text-sm text-slate-500">Événements audités</p>
+          <p class="mt-2 text-4xl font-extrabold text-slate-800"><app-count-up [value]="nbAudit()" /></p>
+        </div>
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="audit" [size]="24" /></span>
+      </a>
+
+      <a routerLink="/admin/audit" class="card p-6 flex items-center justify-between transition hover:shadow-md hover:-translate-y-0.5">
+        <div>
+          <p class="text-sm text-slate-500">Aujourd'hui</p>
+          <p class="mt-2 text-4xl font-extrabold text-slate-800"><app-count-up [value]="nbAuditJour()" /></p>
+        </div>
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-slate-100 text-slate-600"><app-icon name="shield" [size]="24" /></span>
+      </a>
+    </div>
+  }
+
+  <!-- Accès rapides -->
+  <h2 class="mt-10 mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">Accès rapides</h2>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger">
+    @if (estClient()) {
+      <a routerLink="/mes-comptes" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="wallet" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Mes comptes</p><p class="text-sm text-slate-500">Soldes & relevés PDF</p></div>
+      </a>
+      <a routerLink="/virements" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="transfer" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Virements</p><p class="text-sm text-slate-500">Entre comptes</p></div>
+      </a>
+      <a routerLink="/profil" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-slate-100 text-slate-600"><app-icon name="user" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Mon profil</p><p class="text-sm text-slate-500">Coordonnées & mot de passe</p></div>
+      </a>
+    }
+    @if (estConseiller()) {
+      <a routerLink="/conseiller/clients" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="users" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Clients</p><p class="text-sm text-slate-500">Créer, ouvrir & bloquer</p></div>
+      </a>
+      <a routerLink="/conseiller/validations" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-amber-100 text-amber-700"><app-icon name="check" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Validations</p><p class="text-sm text-slate-500">Opérations en attente</p></div>
+      </a>
+    }
+    @if (estAdmin()) {
+      <a routerLink="/admin/utilisateurs" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-brand-100 text-brand-700"><app-icon name="shield" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Utilisateurs</p><p class="text-sm text-slate-500">Conseillers & admins</p></div>
+      </a>
+      <a routerLink="/admin/audit" class="card p-5 flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5">
+        <span class="grid place-items-center w-11 h-11 rounded-2xl bg-slate-100 text-slate-600"><app-icon name="audit" [size]="22" /></span>
+        <div><p class="font-semibold text-slate-800">Journal d'audit</p><p class="text-sm text-slate-500">Traçabilité des opérations</p></div>
+      </a>
+    }
+  </div>
+</section>

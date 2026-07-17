@@ -1,0 +1,27 @@
+<section class="max-w-xl">
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Mon profil</h1>
+
+  <form [formGroup]="form" (ngSubmit)="soumettre()" class="card p-6 space-y-5">
+    <div>
+      <label for="telephone" class="label">Téléphone</label>
+      <input id="telephone" type="tel" formControlName="telephone" class="input" placeholder="77 000 00 00" />
+    </div>
+
+    <div>
+      <label for="adresse" class="label">Adresse</label>
+      <input id="adresse" type="text" formControlName="adresse" class="input" placeholder="Quartier, ville" />
+    </div>
+
+    <div>
+      <label for="motDePasse" class="label">Nouveau mot de passe (optionnel)</label>
+      <input id="motDePasse" type="password" formControlName="nouveauMotDePasse" autocomplete="new-password" class="input" placeholder="Laisser vide pour ne pas changer" />
+      @if (form.controls.nouveauMotDePasse.touched && form.controls.nouveauMotDePasse.invalid) {
+        <p class="field-error">Au moins 6 caractères.</p>
+      }
+    </div>
+
+    <button type="submit" [disabled]="enCours()" class="btn btn-primary">
+      @if (enCours()) { <app-spinner [size]="18" /> Enregistrement… } @else { Enregistrer }
+    </button>
+  </form>
+</section>

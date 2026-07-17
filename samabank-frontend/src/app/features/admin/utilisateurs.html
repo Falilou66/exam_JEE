@@ -1,0 +1,45 @@
+<section class="max-w-xl">
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Créer un utilisateur</h1>
+
+  <form [formGroup]="form" (ngSubmit)="soumettre()" class="card p-6 space-y-5">
+    <div>
+      <label class="label">Type</label>
+      <select formControlName="type" class="input">
+        <option value="CONSEILLER">Conseiller</option>
+        <option value="ADMIN">Administrateur</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="label">Email</label>
+      <input type="email" formControlName="email" class="input" />
+    </div>
+
+    <div>
+      <label class="label">Mot de passe</label>
+      <input type="text" formControlName="motDePasse" class="input" />
+    </div>
+
+    @if (form.controls.type.value === 'CONSEILLER') {
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Matricule</label>
+          <input type="text" formControlName="matricule" class="input" />
+        </div>
+        <div>
+          <label class="label">Agence</label>
+          <input type="text" formControlName="agence" class="input" />
+        </div>
+      </div>
+    } @else {
+      <div>
+        <label class="label">Niveau d'accès</label>
+        <input type="number" min="1" formControlName="niveauAcces" class="input" />
+      </div>
+    }
+
+    <button type="submit" [disabled]="enCours()" class="btn btn-primary">
+      @if (enCours()) { <app-spinner [size]="18" /> Création… } @else { Créer l'utilisateur }
+    </button>
+  </form>
+</section>

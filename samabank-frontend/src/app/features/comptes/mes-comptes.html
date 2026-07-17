@@ -1,0 +1,56 @@
+<section>
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Mes comptes</h1>
+
+  @if (enCours()) {
+    <div class="grid gap-4 sm:grid-cols-2">
+      @for (i of [1, 2]; track i) {
+        <div class="card p-6 animate-pulse">
+          <div class="h-4 w-24 bg-slate-200 rounded"></div>
+          <div class="h-8 w-40 bg-slate-200 rounded mt-6"></div>
+          <div class="h-9 w-full bg-slate-100 rounded-xl mt-6"></div>
+        </div>
+      }
+    </div>
+  } @else if (comptes().length === 0) {
+    <div class="card p-10 text-center text-slate-500">Aucun compte pour le moment.</div>
+  } @else {
+    <div class="grid gap-4 sm:grid-cols-2 stagger">
+      @for (compte of comptes(); track compte.id) {
+        <article class="card p-6 transition hover:shadow-md hover:-translate-y-0.5">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-100 text-brand-700">
+                <app-icon name="wallet" [size]="20" />
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-700">Compte {{ compte.type }}</p>
+                <p class="font-mono text-xs text-slate-500 mt-0.5">{{ compte.numeroCompte }}</p>
+              </div>
+            </div>
+            <span [class]="badgeStatut(compte.statut)">{{ compte.statut }}</span>
+          </div>
+
+          <div class="mt-5">
+            <p class="text-3xl font-bold text-slate-800">
+              {{ compte.solde | number: '1.0-2' }}
+              <span class="text-base font-medium text-slate-400">{{ compte.devise }}</span>
+            </p>
+            <p class="text-sm text-slate-500 mt-1">
+              Disponible : {{ compte.soldeDisponible | number: '1.0-2' }} {{ compte.devise }}
+            </p>
+          </div>
+
+          <div class="mt-6 flex gap-2">
+            <a [routerLink]="['/comptes', compte.id, 'transactions']" [queryParams]="{ numero: compte.numeroCompte }" class="btn btn-primary flex-1">
+              Historique
+            </a>
+            <button type="button" (click)="telechargerReleve(compte)" [disabled]="telechargement() === compte.id" class="btn btn-outline flex-1">
+              <app-icon name="download" [size]="18" />
+              {{ telechargement() === compte.id ? 'Génération…' : 'Relevé PDF' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

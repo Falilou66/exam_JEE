@@ -1,0 +1,55 @@
+<section>
+  <div class="mb-6">
+    <a routerLink="/mes-comptes" class="text-sm text-slate-500 hover:text-brand-700 transition">← Mes comptes</a>
+    <h1 class="text-2xl font-bold text-slate-800 mt-1">Historique des transactions</h1>
+  </div>
+
+  @if (enCours() && !page()) {
+    <div class="card p-10 flex items-center justify-center text-slate-400">Chargement…</div>
+  } @else if (page(); as p) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Libellé</th>
+              <th>Statut</th>
+              <th class="text-right">Montant</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of p.content; track t.id) {
+              <tr>
+                <td class="text-slate-600 whitespace-nowrap">{{ t.dateOperation | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td><span class="badge badge-slate">{{ t.type }}</span></td>
+                <td class="text-slate-600">{{ t.libelle }}</td>
+                <td>
+                  <span class="badge" [class]="t.statut === 'VALIDEE' ? 'badge-green' : t.statut === 'REJETEE' ? 'badge-red' : 'badge-amber'">
+                    {{ t.statut }}
+                  </span>
+                </td>
+                <td class="text-right font-semibold whitespace-nowrap" [class]="estCredit(t) ? 'text-brand-600' : 'text-red-600'">
+                  {{ estCredit(t) ? '+' : '−' }}{{ t.montant | number: '1.0-2' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="text-center text-slate-400 py-10">Aucune transaction.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-50 text-sm">
+        <span class="text-slate-500">
+          Page {{ p.page.number + 1 }} / {{ p.page.totalPages || 1 }} — {{ p.page.totalElements }} opération(s)
+        </span>
+        <div class="flex gap-2">
+          <button type="button" (click)="precedent()" [disabled]="indexPage() === 0" class="btn btn-outline btn-sm">Précédent</button>
+          <button type="button" (click)="suivant()" [disabled]="indexPage() >= p.page.totalPages - 1" class="btn btn-outline btn-sm">Suivant</button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

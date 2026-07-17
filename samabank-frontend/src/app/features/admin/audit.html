@@ -1,0 +1,73 @@
+<section>
+  <h1 class="text-2xl font-bold text-slate-800 mb-6">Journal d'audit</h1>
+
+  <form [formGroup]="filtres" (ngSubmit)="rechercher()" class="card p-4 mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end">
+    <div>
+      <label class="text-xs font-medium text-slate-500 mb-1 block">Acteur</label>
+      <input type="text" formControlName="acteur" class="input" placeholder="email…" />
+    </div>
+    <div>
+      <label class="text-xs font-medium text-slate-500 mb-1 block">Action</label>
+      <input type="text" formControlName="action" class="input" placeholder="VIREMENT…" />
+    </div>
+    <div>
+      <label class="text-xs font-medium text-slate-500 mb-1 block">Du</label>
+      <input type="date" formControlName="dateDebut" class="input" />
+    </div>
+    <div>
+      <label class="text-xs font-medium text-slate-500 mb-1 block">Au</label>
+      <input type="date" formControlName="dateFin" class="input" />
+    </div>
+    <div class="flex gap-2">
+      <button type="submit" class="btn btn-primary flex-1">Filtrer</button>
+      <button type="button" (click)="reinitialiser()" class="btn btn-outline">Réinit.</button>
+    </div>
+  </form>
+
+  @if (page(); as p) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Horodatage</th>
+              <th>Acteur</th>
+              <th>Action</th>
+              <th>Cible</th>
+              <th>IP</th>
+              <th>Détails</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of p.content; track log.id) {
+              <tr class="align-top">
+                <td class="text-slate-600 whitespace-nowrap">{{ log.horodatage | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                <td class="text-slate-700">{{ log.acteur }}</td>
+                <td><span class="badge badge-slate">{{ log.action }}</span></td>
+                <td class="text-slate-600">{{ log.cibleType }}<span class="text-slate-400">#{{ log.cibleId }}</span></td>
+                <td class="text-slate-500 font-mono text-xs">{{ log.adresseIp }}</td>
+                <td>
+                  @if (log.valeurApres) {
+                    <details class="text-xs">
+                      <summary class="cursor-pointer text-brand-700">voir</summary>
+                      <pre class="mt-1 max-w-xs whitespace-pre-wrap break-all text-slate-600 bg-slate-50 rounded-lg p-2">{{ log.valeurApres }}</pre>
+                    </details>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="text-center text-slate-400 py-10">Aucune entrée.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-50 text-sm">
+        <span class="text-slate-500">{{ p.page.totalElements }} entrée(s)</span>
+        <div class="flex gap-2">
+          <button type="button" (click)="precedent()" [disabled]="indexPage() === 0" class="btn btn-outline btn-sm">Précédent</button>
+          <button type="button" (click)="suivant()" [disabled]="indexPage() >= p.page.totalPages - 1" class="btn btn-outline btn-sm">Suivant</button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

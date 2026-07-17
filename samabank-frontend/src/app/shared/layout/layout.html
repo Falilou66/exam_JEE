@@ -1,0 +1,73 @@
+<div class="min-h-screen lg:flex">
+  <!-- Overlay mobile -->
+  @if (menuOuvert()) {
+    <div (click)="fermerMenu()" class="fixed inset-0 bg-black/40 z-30 lg:hidden" aria-hidden="true"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside
+    class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-ink-900 text-slate-300 flex flex-col
+           transform transition-transform duration-200 lg:translate-x-0"
+    [class.-translate-x-full]="!menuOuvert()"
+  >
+    <div class="h-16 flex items-center gap-2.5 px-5 border-b border-white/10">
+      <span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-600 text-white">
+        <app-icon name="bank" [size]="20" />
+      </span>
+      <span class="text-white font-bold text-lg tracking-tight">SamaBank</span>
+    </div>
+
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      @for (lien of liens(); track lien.route) {
+        <a
+          [routerLink]="lien.route"
+          (click)="fermerMenu()"
+          routerLinkActive="bg-brand-600 !text-white shadow-sm shadow-brand-900/40"
+          [routerLinkActiveOptions]="{ exact: estAccueil(lien.route) }"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300
+                 hover:bg-white/5 hover:text-white transition"
+        >
+          <app-icon [name]="lien.icon" [size]="20" />
+          {{ lien.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="p-3 border-t border-white/10">
+      <div class="flex items-center gap-3 px-2 py-2">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold">
+          {{ initiales() }}
+        </span>
+        <div class="min-w-0">
+          <p class="text-sm text-white truncate">{{ email() }}</p>
+          <p class="text-xs text-slate-400">{{ roleLabel() }}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="deconnexion()"
+        class="mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
+      >
+        <app-icon name="logout" [size]="18" />
+        Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- Contenu -->
+  <div class="flex-1 min-w-0 flex flex-col">
+    <header class="h-16 bg-white/80 backdrop-blur border-b border-slate-200 flex items-center gap-3 px-4 lg:px-8 sticky top-0 z-20">
+      <button type="button" (click)="basculerMenu()" class="lg:hidden text-slate-600" aria-label="Menu">
+        <app-icon name="menu" [size]="24" />
+      </button>
+      <span class="lg:hidden font-bold text-slate-800">SamaBank</span>
+      <div class="ml-auto flex items-center gap-3">
+        <span class="badge badge-green">{{ roleLabel() }}</span>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 lg:p-8 animate-fade-in">
+      <router-outlet />
+    </main>
+  </div>
+</div>

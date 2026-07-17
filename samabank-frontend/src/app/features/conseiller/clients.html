@@ -1,0 +1,87 @@
+<section>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-slate-800">Clients</h1>
+    <button type="button" (click)="afficherFormulaire.set(!afficherFormulaire())" class="btn btn-primary">
+      <app-icon [name]="afficherFormulaire() ? 'close' : 'plus'" [size]="18" />
+      {{ afficherFormulaire() ? 'Fermer' : 'Nouveau client' }}
+    </button>
+  </div>
+
+  @if (afficherFormulaire()) {
+    <form [formGroup]="form" (ngSubmit)="creer()" class="card p-6 mb-6 grid gap-4 sm:grid-cols-2 animate-fade-in">
+      <div>
+        <label class="label">Nom</label>
+        <input type="text" formControlName="nom" class="input" />
+      </div>
+      <div>
+        <label class="label">Prénom</label>
+        <input type="text" formControlName="prenom" class="input" />
+      </div>
+      <div>
+        <label class="label">CNI</label>
+        <input type="text" formControlName="cni" class="input" />
+      </div>
+      <div>
+        <label class="label">Email</label>
+        <input type="email" formControlName="email" class="input" />
+      </div>
+      <div>
+        <label class="label">Mot de passe initial</label>
+        <input type="text" formControlName="motDePasse" class="input" />
+      </div>
+      <div>
+        <label class="label">Téléphone</label>
+        <input type="tel" formControlName="telephone" class="input" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="label">Adresse</label>
+        <input type="text" formControlName="adresse" class="input" />
+      </div>
+      <div class="sm:col-span-2">
+        <button type="submit" [disabled]="enCours()" class="btn btn-primary">
+          @if (enCours()) { <app-spinner [size]="18" /> Création… } @else { Créer le client }
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (page(); as p) {
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>N° client</th>
+              <th>Nom</th>
+              <th>CNI</th>
+              <th>Email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (client of p.content; track client.id) {
+              <tr>
+                <td class="font-mono text-slate-600">{{ client.numeroClient }}</td>
+                <td class="text-slate-800 font-medium">{{ client.prenom }} {{ client.nom }}</td>
+                <td class="text-slate-600">{{ client.cni }}</td>
+                <td class="text-slate-600">{{ client.email }}</td>
+                <td class="text-right">
+                  <a [routerLink]="['/conseiller/clients', client.id]" class="text-brand-700 font-medium hover:underline">Ouvrir →</a>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="text-center text-slate-400 py-10">Aucun client.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between px-4 py-3 bg-slate-50 text-sm">
+        <span class="text-slate-500">Page {{ p.page.number + 1 }} / {{ p.page.totalPages || 1 }}</span>
+        <div class="flex gap-2">
+          <button type="button" (click)="precedent()" [disabled]="indexPage() === 0" class="btn btn-outline btn-sm">Précédent</button>
+          <button type="button" (click)="suivant()" [disabled]="indexPage() >= p.page.totalPages - 1" class="btn btn-outline btn-sm">Suivant</button>
+        </div>
+      </div>
+    </div>
+  }
+</section>
