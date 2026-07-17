@@ -1,59 +1,120 @@
-# SamabankFrontend
+# SamaBank — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+Interface web (SPA) de la plateforme **SamaBank**, développée en **Angular 22**
+avec **Tailwind CSS**. Consomme l'API REST du backend Spring Boot.
 
-## Development server
+> ↩️ Vue d'ensemble du projet : [README principal](../README.md) ·
+> API : [README backend](../samabank-backend/README.md)
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## 🧰 Stack technique
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Domaine | Technologie |
+|---|---|
+| Framework | **Angular 22** (composants standalone, **signals**, control-flow `@if/@for`) |
+| Langage | TypeScript (strict) |
+| Style | **Tailwind CSS v4** — identité « Fintech émeraude » |
+| HTTP / état | RxJS + `HttpClient`, intercepteur & guards **fonctionnels** |
+| Build | Angular CLI (esbuild) |
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ✅ Prérequis
 
-```bash
-ng generate component component-name
-```
+- **Node.js 20+** et **npm**
+- Le **backend** démarré sur `http://localhost:8080` (voir son README)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🚀 Démarrage
 
 ```bash
-ng test
+npm install        # première fois
+ng serve           # http://localhost:4200
 ```
 
-## Running end-to-end tests
+L'URL de l'API est configurée dans `src/environments/environment.ts` :
 
-For end-to-end (e2e) testing, run:
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api/v1',
+};
+```
 
+### Build de production
 ```bash
-ng e2e
+ng build            # sortie dans dist/
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## 🎨 Design system
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Identité **Fintech émeraude** : accent émeraude/teal, sidebar bleu nuit, fond clair.
+
+- **Tokens** (`src/styles.css`, `@theme`) : couleurs `brand-*` et `ink-*`, police *Plus Jakarta Sans*.
+- **Classes réutilisables** (`@layer components`) : `.btn` (primary/outline/danger/success/ghost/sm), `.card`, `.input`, `.label`, `.badge`, `.alert`, `.table-clean`.
+- **Composants UI** (`src/app/shared/ui/`) :
+  - `Icon` — icônes Heroicons par nom
+  - `Spinner` — indicateur de chargement
+  - `CountUp` — compteurs animés
+  - `ToastContainer` + `ToastService` — notifications
+  - `ConfirmDialog` + `ConfirmService` — modales de confirmation
+  - `RouteProgress` — barre de progression à la navigation
+- **Animations** : `fade-in`, `slide-in`, `pop-in`, entrées en cascade (`.stagger`).
+
+---
+
+## 🗂️ Structure
+
+```
+src/app/
+├── core/
+│   ├── models/            interfaces (miroir des DTO backend)
+│   ├── services/          auth · token (JWT signals) · compte · virement · profil · conseiller · admin · toast · confirm
+│   ├── interceptors/      auth.interceptor (Bearer + refresh auto sur 401)
+│   └── guards/            authGuard · roleGuard
+├── shared/
+│   ├── layout/            sidebar responsive (nav selon rôle)
+│   └── ui/                composants réutilisables
+├── features/
+│   ├── auth/              login (split-screen)
+│   ├── home/              tableau de bord par rôle (KPI animés)
+│   ├── comptes/           mes-comptes · historique
+│   ├── virements/         formulaire de virement
+│   ├── profil/            mise à jour du profil
+│   ├── conseiller/        clients · client-detail · validations
+│   └── admin/             utilisateurs · audit
+└── environments/          apiUrl
+```
+
+---
+
+## 🔐 Authentification & sécurité
+
+- Les jetons (access + refresh) sont stockés côté navigateur ; l'état d'auth est
+  dérivé du JWT via des **signals** (`TokenService`).
+- L'**intercepteur** ajoute le `Bearer` à chaque requête et **rafraîchit
+  automatiquement** l'access token sur une réponse 401, avant de rejouer la requête.
+- Les **guards** protègent les routes : `authGuard` (connecté) et
+  `roleGuard('ROLE_…')` (par rôle). La navigation est en **lazy loading**.
+
+---
+
+## 🧭 Parcours par rôle
+
+| Rôle | Pages |
+|---|---|
+| **Client** | Mes comptes · Historique · Relevé PDF · Virements · Profil |
+| **Conseiller** | Clients · Détail client (ouvrir/bloquer comptes) · Validations |
+| **Admin** | Utilisateurs · Journal d'audit |
+
+---
+
+## 📝 Conventions
+
+Le projet suit les bonnes pratiques Angular 22 (voir `.claude/CLAUDE.md`) :
+composants **standalone**, **signals** + `computed()`, `inject()`, control-flow
+natif, bindings `class`/`style` (pas de `ngClass`/`ngStyle`), formulaires réactifs.
