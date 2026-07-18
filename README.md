@@ -25,7 +25,7 @@ répartis sur trois acteurs aux responsabilités disjointes.
 | Acteur | Rôle | Fonctions |
 |---|---|---|
 | 👤 **Client** | *utilise* | Consulter ses comptes, virements, historique, relevé PDF, profil |
-| 🧑‍💼 **Conseiller** | *gère* | Créer des clients, ouvrir/bloquer des comptes, valider les opérations sensibles |
+| 🧑‍💼 **Conseiller** | *gère* | Créer des clients, ouvrir/bloquer des comptes, dépôts/retraits, valider les opérations sensibles |
 | 🛡️ **Administrateur** | *supervise* | Gérer les utilisateurs, consulter le journal d'audit |
 
 ---
@@ -95,6 +95,33 @@ ng serve
 ```
 
 Ouvrir **http://localhost:4200** 🎉
+
+---
+
+## 🐳 Avec Docker (tout-en-un)
+
+Aucune installation de Java/Node/MySQL requise — juste **Docker** et **Docker Compose**.
+
+```bash
+docker compose up --build
+```
+
+Cela construit et démarre trois conteneurs :
+
+| Service | Image / Build | Port hôte |
+|---|---|---|
+| `mysql` | mysql:8 | 3307 |
+| `backend` | build `./samabank-backend` (Maven → JRE 21) | 8080 |
+| `frontend` | build `./samabank-frontend` (Node → Nginx) | 4200 |
+
+Puis ouvrir **http://localhost:4200**. Nginx sert la SPA et **relaie `/api` vers le
+backend** (même origine, donc pas de CORS). Variables surchargeables via un fichier
+`.env` (`DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `MYSQL_ROOT_PASSWORD`).
+
+```bash
+docker compose down          # arrêter
+docker compose down -v       # arrêter + supprimer les données MySQL
+```
 
 ---
 

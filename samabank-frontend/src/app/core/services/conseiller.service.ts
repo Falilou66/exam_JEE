@@ -7,6 +7,7 @@ import {
   CompteResponse,
   CreationClientRequest,
   DecisionValidation,
+  OperationRequest,
   OuvertureCompteRequest,
   StatutCompte,
   TransactionResponse,
@@ -42,6 +43,14 @@ export class ConseillerService {
 
   changerStatut(compteId: number, statut: StatutCompte): Observable<CompteResponse> {
     return this.http.patch<CompteResponse>(`${this.base}/comptes/${compteId}/statut`, { statut });
+  }
+
+  deposer(compteId: number, requete: OperationRequest): Observable<TransactionResponse> {
+    return this.http.post<TransactionResponse>(`${this.base}/comptes/${compteId}/depot`, requete);
+  }
+
+  retirer(compteId: number, requete: OperationRequest): Observable<TransactionResponse> {
+    return this.http.post<TransactionResponse>(`${this.base}/comptes/${compteId}/retrait`, requete);
   }
 
   operationsEnAttente(page = 0, size = 20): Observable<Page<TransactionResponse>> {

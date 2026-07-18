@@ -108,7 +108,7 @@ src/app/
 | Rôle | Pages |
 |---|---|
 | **Client** | Mes comptes · Historique · Relevé PDF · Virements · Profil |
-| **Conseiller** | Clients · Détail client (ouvrir/bloquer comptes) · Validations |
+| **Conseiller** | Clients · Détail client (ouvrir/bloquer comptes, **dépôt/retrait**) · Validations |
 | **Admin** | Utilisateurs · Journal d'audit |
 
 ---

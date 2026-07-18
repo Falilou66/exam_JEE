@@ -1,4 +1,6 @@
+// Environnement de PRODUCTION (build Docker). L'API est servie derrière Nginx
+// sur la même origine → URL relative.
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8080/api/v1',
+  production: true,
+  apiUrl: '/api/v1',
 };

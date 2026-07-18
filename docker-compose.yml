@@ -1,0 +1,50 @@
+services:
+  # ---------- Base de données ----------
+  mysql:
+    image: mysql:8
+    container_name: samabank-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpwd}
+      MYSQL_DATABASE: samabank
+      MYSQL_USER: ${DB_USERNAME:-spring_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-spring}
+    ports:
+      # 3307 côté hôte pour ne pas entrer en conflit avec un MySQL local (3306)
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpwd}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------- API Spring Boot ----------
+  backend:
+    build: ./samabank-backend
+    container_name: samabank-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/samabank?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:-spring_user}
+      DB_PASSWORD: ${DB_PASSWORD:-spring}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-super-secret-key-0123456789abcdef}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------- Front Angular servi par Nginx ----------
+  frontend:
+    build: ./samabank-frontend
+    container_name: samabank-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ClientResponse,
@@ -33,6 +33,13 @@ export class ClientDetail {
     type: ['COURANT' as TypeCompte],
     decouvertAutorise: [0],
     tauxInteret: [0],
+  });
+
+  // Opération de caisse (dépôt / retrait) en cours de saisie
+  protected readonly operation = signal<{ compteId: number; type: 'DEPOT' | 'RETRAIT' } | null>(null);
+  protected readonly enCoursOp = signal(false);
+  protected readonly montantOp = new FormControl<number | null>(null, {
+    validators: [Validators.required, Validators.min(1)],
   });
 
   constructor() {
@@ -86,6 +93,45 @@ export class ClientDetail {
         this.chargerComptes();
       },
       error: (err) => this.toast.error(err?.error?.detail ?? 'Action impossible.'),
+    });
+  }
+
+  protected ouvrirOperation(compte: CompteResponse, type: 'DEPOT' | 'RETRAIT'): void {
+    this.operation.set({ compteId: compte.id, type });
+    this.montantOp.reset(null);
+  }
+
+  protected annulerOperation(): void {
+    this.operation.set(null);
+  }
+
+  protected soumettreOperation(compte: CompteResponse): void {
+    if (this.montantOp.invalid) {
+      this.montantOp.markAsTouched();
+      return;
+    }
+    const op = this.operation();
+    if (!op) {
+      return;
+    }
+    this.enCoursOp.set(true);
+    const requete = { montant: this.montantOp.value ?? 0 };
+    const appel =
+      op.type === 'DEPOT'
+        ? this.service.deposer(compte.id, requete)
+        : this.service.retirer(compte.id, requete);
+
+    appel.subscribe({
+      next: () => {
+        this.enCoursOp.set(false);
+        this.operation.set(null);
+        this.toast.success(op.type === 'DEPOT' ? 'Dépôt effectué.' : 'Retrait effectué.');
+        this.chargerComptes();
+      },
+      error: (err) => {
+        this.enCoursOp.set(false);
+        this.toast.error(err?.error?.detail ?? "L'opération a échoué.");
+      },
     });
   }
 
